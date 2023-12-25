@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     typeCheck: true
   },
   devServer: {
-    host: "0.0.0.0"
+    host: "*",
   },
   modules: ["@element-plus/nuxt", "@nuxt/image"],
 })
