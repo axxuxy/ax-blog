@@ -34,7 +34,7 @@
       <p>使用了 dexie包（indexedDB ）对下载数据（图片下载日期和位置等）和标签搜索历史数据的储存。</p>
       <p>页面使用了 vue 技术栈和 element-plus ui 框架进行开发，页面风格比较素，不想搞得太花里胡哨。</p>
       <p>项目地址：<NuxtLink target="_blank" to="https://github.com/axxuxy/ax-image">https://github.com/axxuxy/ax-image</NuxtLink></p>
-      <p>下载链接：<NuxtLink external to="/ax-image.exe" download="ax-image.exe" no-prefetch>ax-image.exe</NuxtLink>，记得需要在设置页面设置代理才能正常使用噢！</p>
+      <p>下载链接：<NuxtLink external to="/api/ax-image" download="ax-image.exe" no-prefetch>ax-image.exe</NuxtLink>，记得需要在设置页面设置代理才能正常使用噢！</p>
     </section>
   </LinearGradientBackage>
 </template>
