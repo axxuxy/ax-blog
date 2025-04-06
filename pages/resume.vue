@@ -138,7 +138,8 @@ onBeforeRouteLeave(() => {
             </NuxtLink>
             <h3>bubble 项目</h3>
             <p>一个气泡特效库</p>
-            <p>项目地址：<NuxtLink target="_blank" to="https://github.com/axxuxy/bubble">https://github.com/axxuxy/bubble</NuxtLink>
+            <p>项目地址：<NuxtLink target="_blank" to="https://github.com/axxuxy/bubble">https://github.com/axxuxy/bubble
+              </NuxtLink>
             </p>
           </li>
         </ul>
