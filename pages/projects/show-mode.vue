@@ -23,9 +23,8 @@
 
 <script setup lang="ts">
 // TODO 添加加载模型的进度条
-// TODO 更改模型的旋转中心
 // TODO 在移除模型时需要销毁所有能销毁的3D对象
-import { AmbientLight, AnimationMixer, Clock, Color, Mesh, Object3D, PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { AmbientLight, AnimationMixer, Box3, Clock, Color, Mesh, Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
 import { EffectComposer, GLTFLoader, RenderPass, SMAAPass, type GLTF } from "three/examples/jsm/Addons.js";
 import { type UploadFile } from "element-plus";
 
@@ -74,27 +73,24 @@ onMounted(() => {
   });
 
   function toCenten(scene: Object3D) {
-    if (scene.children.length === 1) {
-      const child = scene.children[0];
-      toCenten(child);
-      child.position.set(0, 0, 0);
-    }
+    const center = new Box3().expandByObject(scene).getCenter(new Vector3());
+    scene.children.forEach(_ => {
+      _.position.set(-center.x, -center.y, -center.z);
+    })
   }
   watch(model, (model, oldModel) => {
     if (oldModel)
       scene.remove(oldModel.scene);
     if (model) {
-      model.scene
-      let meshCount = 0;
       model.scene.traverse((item) => {
         if (item instanceof Mesh) {
-          meshCount++;
           if (!item.material.map)
             item.visible = false;
           else
             item.material.depthWrite = true;
         }
       });
+      toCenten(model.scene);
       scene.add(model.scene);
     }
   });
@@ -118,8 +114,8 @@ onMounted(() => {
       }
       if (rotateAdd.length) {
         const { x, y } = rotateAdd.reduce((a, b) => ({ x: a.x + b.x, y: a.y + b.y }), { x: 0, y: 0 });
-        model.value.scene.rotation.x += x / 180;
-        model.value.scene.rotation.y += y / 180;
+        model.value.scene.rotateOnWorldAxis(new Vector3(1, 0, 0), x / 180);
+        model.value.scene.rotateOnWorldAxis(new Vector3(0, 1, 0), y / 180);
         rotateAdd = [];
       }
       if (updatePositionZ.length) {
