@@ -2,10 +2,11 @@
   <LinearGradientBackage>
     <ElContainer class="container">
       <ElMain>
-        <div ref="threeContainer" style="position: fixed;top: 0;left: 0;z-index: -1;width: 100%; height: 100%;"
+        <div ref="threeContainer"
+          style="position: fixed;top: 0;left: 0;z-index: -1;width: 100%; height: 100%;"
           :style="{ opacity: model ? 1 : 0, zIndex: model ? 0 : -1 }">
         </div>
-        <div v-show="!model" class="file-input-box">
+        <div v-show="!model && loadProgress === undefined" class="file-input-box">
           <ElUpload @change="fileChange" accept=".glb,.gltf" :auto-upload="false" drag :show-file-list="false"
             style="flex: 1;">
             <ElIcon class="el-icon--upload">
@@ -17,29 +18,55 @@
           </ElUpload>
         </div>
       </ElMain>
+      <div ref="progressBox" class="progress" v-show="loadProgress !== undefined">
+        <div>
+          <ElProgress :stroke-width="8" :percentage="loadProgress === -1 ? 100 : loadProgress"
+            :indeterminate="loadProgress === -1" :duration="5">
+            <template #default="{ percentage }">
+              <span v-if="loadProgress === -1">加载中...</span>
+              <span v-else>{{ percentage }}%</span>
+            </template>
+          </ElProgress>
+        </div>
+      </div>
     </ElContainer>
   </LinearGradientBackage>
 </template>
 
 <script setup lang="ts">
-// TODO 添加加载模型的进度条
 // TODO 在移除模型时需要销毁所有能销毁的3D对象
 import { AmbientLight, AnimationMixer, Box3, Clock, Color, Mesh, Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
 import { EffectComposer, GLTFLoader, RenderPass, SMAAPass, type GLTF } from "three/examples/jsm/Addons.js";
 import { type UploadFile } from "element-plus";
 
 const threeContainer = ref<HTMLDivElement>();
-const model = shallowRef<GLTF>()
+const model = shallowRef<GLTF>();
+const loadProgress = ref<number>()
 function fileChange(file: UploadFile) {
   if (file.raw) {
     const url = URL.createObjectURL(file.raw);
     new GLTFLoader().loadAsync(
-      url
-    ).then((gltf) => {
-      model.value = gltf;
-    });
+      url,
+      (_) => {
+        if (!_.total) loadProgress.value = -1
+        else loadProgress.value = _.loaded / _.total * 100;
+      }
+    )
+      .then((gltf) => {
+        model.value = gltf;
+      })
+      .catch(() => {
+        ElMessageBox.alert("模型加载失败！");
+      }).finally(() => {
+        loadProgress.value = undefined;
+      });
   }
 }
+
+const progressBox = ref<HTMLDivElement>();
+watch(progressBox, (_) => {
+  if (_) setDark(_);
+});
 
 onMounted(() => {
   const camera = new PerspectiveCamera(30, 1.5);
@@ -282,6 +309,22 @@ onMounted(() => {
 
     p {
       margin: 0;
+    }
+  }
+
+  .progress {
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    &>div {
+      width: 80%;
+      max-width: 960px;
     }
   }
 }

@@ -10,12 +10,7 @@ useSeoMeta({
 
 const timeline = ref<InstanceType<typeof ElTimeline>>();
 watch(timeline, _ => {
-  if (_) {
-    const style = ([...document.styleSheets].flatMap(_ => [..._.cssRules]) as CSSStyleRule[]).find(_ => _.selectorText === "html.dark")?.style;
-    if (style) for (const name of style!) {
-      (_.$el as HTMLElement).style.setProperty(name, style.getPropertyValue(name))
-    }
-  }
+  if (_) setDark(_.$el);
 });
 
 const flipPage = ref<InstanceType<typeof FlipPageVue>>();
